@@ -64,7 +64,8 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
         // Initialize Map (Centered on Europe by default)
-        const map = L.map('map').setView([46.2276, 2.2137], 5);
+        //const map = L.map('map').setView([46.2276, 2.2137], 5);
+        //const map = L.map('map').setView([46.8182, 8.2275], 8);
         
         // // Add OpenStreetMap tiles
         // L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -73,10 +74,66 @@
         // }).addTo(map);
 
         // Add Tracestrack Topo tiles instead of standard OpenStreetMap
-        L.tileLayer('https://tile.tracestrack.com/topo/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: 'Map data: © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Global elevation data: © <a href="https://srtm.csi.cgiar.org">SRTM</a>, Style: © <a href="https://www.tracestrack.com">Tracestrack</a>'
-        }).addTo(map);
+        // L.tileLayer('https://{s}.tile.tracestrack.com/topo/{z}/{x}/{y}.png', {
+        //     maxZoom: 19,
+        //     attribution: 'Map data: © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Global elevation data: © <a href="https://srtm.csi.cgiar.org">SRTM</a>, Style: © <a href="https://www.tracestrack.com">Tracestrack</a>'
+        // }).addTo(map);
+
+        // L.tileLayer('https://wmts.geo.admin.ch/1.0.0/ch.swisstopo.pixelkarte-farbe/default/current/3857/{z}/{x}/{y}.jpeg', {
+        //     maxNativeZoom: 19,
+        //     maxZoom: 22,
+        //     attribution: 'Map data © <a href="https://www.swisstopo.admin.ch/">swisstopo</a>'
+        // }).addTo(map);
+
+        // // Official IGN Geoportail / Géoplateforme Tile Layer (Plan IGN V2)
+        // L.tileLayer('https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2&STYLE=normal&FORMAT=image/png&TILEMATRIXSET=PM&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}', {
+        //     maxNativeZoom: 19,
+        //     maxZoom: 22,
+        //     attribution: 'Cartes © <a href="https://www.cartes.gouv.fr/">IGN/Géoplateforme</a>'
+        // }).addTo(map);
+
+
+    // 1. Initialize the Map (centered roughly between France and Switzerland)
+    const map = L.map('map').setView([46.5, 5.5], 7);
+
+    // 2. Define the different map background layers
+    const openStreetMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap contributors'
+    });
+
+    const ignPlan = L.tileLayer('https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2&STYLE=normal&FORMAT=image/png&TILEMATRIXSET=PM&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}', {
+        maxNativeZoom: 19,
+        maxZoom: 22,
+        attribution: 'Cartes © <a href="https://www.cartes.gouv.fr/">IGN/Géoplateforme</a>'
+    });
+
+    const ignTopo = L.tileLayer('https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=GEOGRAPHICALGRIDSYSTEMS.MAPS&STYLE=normal&FORMAT=image/jpeg&TILEMATRIXSET=PM&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}', {
+        maxNativeZoom: 16,
+        maxZoom: 18,
+        attribution: 'Cartes Topo © <a href="https://www.cartes.gouv.fr/">IGN/Géoplateforme</a>'
+    });
+
+    const swissTopo = L.tileLayer('https://wmts.geo.admin.ch/1.0.0/ch.swisstopo.pixelkarte-farbe/default/current/3857/{z}/{x}/{y}.jpeg', {
+        maxNativeZoom: 19,
+        maxZoom: 22,
+        attribution: 'Map data © <a href="https://www.swisstopo.admin.ch/">swisstopo</a>'
+    });
+
+    // 3. Add one default layer to the map on startup (e.g., IGN Plan)
+    ignPlan.addTo(map);
+
+    // 4. Create an object grouping your available base maps
+    const baseMaps = {
+        "Plan IGN (FR)": ignPlan,
+        "Topo Scan 25 (FR)": ignTopo,
+        "swisstopo (CH)": swissTopo,
+        "OpenStreetMap": openStreetMap
+    };
+
+    // 5. Add the Layer Control button to the top-right corner of the map
+    L.control.layers(baseMaps, null, { position: 'topright', collapsed: true }).addTo(map);
+
 
 
         let point1 = null;
