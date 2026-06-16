@@ -57,8 +57,8 @@
     <div id="map"></div>
     
     <div id="controls">
-        <button onclick="useDeviceLocation()">📍 Use Current iPhone Location</button>
-        <div id="result">Tap the map to select Point 1 & Point 2</div>
+        <button onclick="useDeviceLocation()">📍 Use Current Location</button>
+        <div id="result">Tap the map to select Point 1, Point 2 and Point 3</div>
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -72,10 +72,13 @@
             attribution: '© OpenStreetMap'
         }).addTo(map);
 
+
         let point1 = null;
         let point2 = null;
+        let point3 = null;
         let marker1 = null;
         let marker2 = null;
+        let marker3 = null;
         let polyline = null;
 
         // 1 & 3: Handle Map Taps/Clicks
@@ -92,6 +95,11 @@
                 point2 = coords;
                 marker2 = L.marker(point2).addTo(map).bindPopup("Point 2").openPopup();
                 calculateDistance();
+            } else if (!point3) {
+                // Set Point 3
+                point3 = coords;
+                marker3 = L.marker(point3).addTo(map).bindPopup("Point 3").openPopup();
+                calculateDistanceBetweenPoints();
             } else {
                 // Reset and start over if both exist
                 resetPoints();
@@ -119,11 +127,16 @@
                         point1 = coords;
                         marker1 = L.marker(point1).addTo(map).bindPopup("Point 1 (Your Location)").openPopup();
                         updateUI();
-                    } else {
+                    } else if (!point2) {
                         point2 = coords;
                         if(marker2) map.removeLayer(marker2);
                         marker2 = L.marker(point2).addTo(map).bindPopup("Point 2 (Your Location)").openPopup();
                         calculateDistance();
+                    } else {
+                        point3 = coords;
+                        if(marker3) map.removeLayer(marker3);
+                        marker3 = L.marker(point3).addTo(map).bindPopup("Point 3 (Your Location)").openPopup();
+                        calculateDistanceBetweenPoints();
                     }
                 },
                 (error) => {
@@ -156,19 +169,47 @@
             document.getElementById('result').innerHTML = resultText;
         }
 
+        function calculateDistanceBetweenPoints() {
+            if (!point1 || !point2 || !point3) return;
+
+            // Leaflet's built-in distance function (uses Haversine formula internally)
+            const distanceInMeters12 = point1.distanceTo(point2);
+            const distanceInMeters23 = point2.distanceTo(point3);
+            const distanceInMeters31 = point3.distanceTo(point1);
+
+            const differenceDistance = Math.abs(distanceInMeters12 + distanceInMeters23 - distanceInMeters31);
+            
+            // Draw a line between points
+            if (polyline) map.removeLayer(polyline);
+            polyline = L.polyline([point1, point2, point3], {color: '#007aff', weight: 4}).addTo(map);
+            map.fitBounds(polyline.getBounds(), { padding: [50, 50] });
+
+            // Format result
+            let resultText = "";
+            resultText = `Diff Distance: <span class="bold">${(differenceDistance / 1000 / 0.3 ).toFixed(3)} us </span> (P1-P2: ${(distanceInMeters12 / 1000).toFixed(3)} km, P2-P3: ${(distanceInMeters23 / 1000).toFixed(3)} km, P1-P3: ${(distanceInMeters31 / 1000).toFixed(3)} km)`;
+            
+            document.getElementById('result').innerHTML = resultText;
+        }
+
+
         function updateUI() {
             if (point1 && !point2) {
                 document.getElementById('result').innerText = "Point 1 set. Select Point 2 (Tap map or use GPS)";
+            }
+            if (point2 && !point3) {
+                document.getElementById('result').innerText = "Point 1 and 2 set. Select Point 3 (Tap map or use GPS)";
             }
         }
 
         function resetPoints() {
             if (marker1) map.removeLayer(marker1);
             if (marker2) map.removeLayer(marker2);
+            if (marker3) map.removeLayer(marker3);
             if (polyline) map.removeLayer(polyline);
             point1 = null;
             point2 = null;
-            document.getElementById('result').innerText = "Tap the map to select Point 1 & Point 2";
+            point3 = null;
+            document.getElementById('result').innerText = "Tap the map to select Point 1, Point 2, and Point 3";
         }
     </script>
 </body>
