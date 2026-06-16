@@ -66,10 +66,16 @@
         // Initialize Map (Centered on Europe by default)
         const map = L.map('map').setView([46.2276, 2.2137], 5);
         
-        // Add OpenStreetMap tiles
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        // // Add OpenStreetMap tiles
+        // L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        //     maxZoom: 19,
+        //     attribution: '© OpenStreetMap'
+        // }).addTo(map);
+
+        // Add Tracestrack Topo tiles instead of standard OpenStreetMap
+        L.tileLayer('https://tile.tracestrack.com/topo/{z}/{x}/{y}.png', {
             maxZoom: 19,
-            attribution: '© OpenStreetMap'
+            attribution: 'Map data: © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Global elevation data: © <a href="https://srtm.csi.cgiar.org">SRTM</a>, Style: © <a href="https://www.tracestrack.com">Tracestrack</a>'
         }).addTo(map);
 
 
